@@ -11,7 +11,8 @@ public static class SearchMoviesEndpoint
             var response = await handler.HandleAsync(query, page, ct);
             return TypedResults.Ok(response);
         })
-        .ProducesValidationProblem();
+        .ProducesValidationProblem()
+        .ProducesProblem(StatusCodes.Status502BadGateway);
 
         return app;
     }
