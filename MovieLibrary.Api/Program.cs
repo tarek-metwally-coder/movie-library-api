@@ -10,6 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 builder.Services.AddHealthChecks();
 
+builder.Services.AddValidation();
 builder.Services.AddScoped<SearchMoviesHandler>();
 
 builder.Services.AddOptions<TmdbOptions>()
