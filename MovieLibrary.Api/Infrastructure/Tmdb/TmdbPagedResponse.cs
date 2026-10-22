@@ -3,7 +3,7 @@
 namespace MovieLibrary.Api.Infrastructure.Tmdb;
 
 
-public  record TmdbPagedResponse
+public record TmdbPagedResponse
 {
     [JsonPropertyName("page")]
     public int Page { get; init; }

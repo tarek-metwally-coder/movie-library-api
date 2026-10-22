@@ -45,7 +45,7 @@ app.UseHttpsRedirection();
 
 app.MapHealthChecks("/health");
 
-app.MapGet("/test-tmdb", async (TmdbClient tmdb, CancellationToken ct, int page=1) =>
+app.MapGet("/test-tmdb", async (TmdbClient tmdb, CancellationToken ct, int page = 1) =>
 {
     var response = await tmdb.GetPopularMoviesAsync(page, ct);
     return Results.Ok(response);

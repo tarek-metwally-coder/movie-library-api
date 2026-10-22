@@ -19,5 +19,7 @@ public record TmdbMovie
     public string? ReleaseDate { get; init; }
     [JsonPropertyName("vote_average")]
     public double VoteAverage { get; init; }
+    [JsonPropertyName("original_language")]
+    public string? OriginalLanguage { get; init; }
 
 }

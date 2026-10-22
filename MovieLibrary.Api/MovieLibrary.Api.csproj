@@ -12,9 +12,5 @@
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.3.1" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Features\Movies\SearchMovies\" />
-    <Folder Include="Infrastructure\Tmdb\" />
-  </ItemGroup>
 
 </Project>
