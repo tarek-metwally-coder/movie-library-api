@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Options;
+using MovieLibrary.Api.Features.Movies.SearchMovies;
 using MovieLibrary.Api.Infrastructure.Tmdb;
 using System.Net.Http.Headers;
 
@@ -8,6 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddHealthChecks();
+
+builder.Services.AddScoped<SearchMoviesHandler>();
 
 builder.Services.AddOptions<TmdbOptions>()
     .BindConfiguration("Tmdb")
@@ -45,11 +48,7 @@ app.UseHttpsRedirection();
 
 app.MapHealthChecks("/health");
 
-app.MapGet("/test-tmdb", async (TmdbClient tmdb, CancellationToken ct, int page = 1) =>
-{
-    var response = await tmdb.GetPopularMoviesAsync(page, ct);
-    return Results.Ok(response);
-});
+app.MapSearchMovies();
 
 app.Run();
 
