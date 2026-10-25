@@ -17,8 +17,8 @@ public static class MovieMapper
             Id = tmdbMovie.Id,
             Title = tmdbMovie.Title,
             Overview = tmdbMovie.Overview,
-            PosterUrl = string.IsNullOrEmpty(tmdbMovie.PosterPath) ? null : $"{BaseImageUrl}{tmdbMovie.PosterPath}",
-            BackdropUrl = string.IsNullOrEmpty(tmdbMovie.BackdropPath) ? null : $"{BaseBackdropUrl}{tmdbMovie.BackdropPath}",
+            PosterUrl = string.IsNullOrWhiteSpace(tmdbMovie.PosterPath) ? null : $"{BaseImageUrl}{tmdbMovie.PosterPath}",
+            BackdropUrl = string.IsNullOrWhiteSpace(tmdbMovie.BackdropPath) ? null : $"{BaseBackdropUrl}{tmdbMovie.BackdropPath}",
             ReleaseDate = ParseReleaseDate(tmdbMovie.ReleaseDate),
             VoteAverage = tmdbMovie.VoteAverage,
             OriginalLanguage = tmdbMovie.OriginalLanguage
