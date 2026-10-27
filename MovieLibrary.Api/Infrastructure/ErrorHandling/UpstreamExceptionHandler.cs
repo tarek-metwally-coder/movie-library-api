@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace MovieLibrary.Api.Infrastructure.ErrorHandling;
 
@@ -10,9 +11,9 @@ public class UpstreamExceptionHandler(
 {
     public async ValueTask<bool> TryHandleAsync(HttpContext context, Exception exception, CancellationToken cancellationToken)
     {
-        if (exception is HttpRequestException httpRequestException)
+        if (exception is HttpRequestException or JsonException)
         {
-            logger.LogError(httpRequestException, "An upstream service error occurred.");
+            logger.LogError(exception, "An upstream service error occurred.");
             var problemDetails = new ProblemDetails
             {
                 Title = "Upstream Service Error",
@@ -25,7 +26,7 @@ public class UpstreamExceptionHandler(
             {
                 HttpContext = context,
                 ProblemDetails = problemDetails,
-                Exception = httpRequestException
+                Exception = exception
 
             });
         }
