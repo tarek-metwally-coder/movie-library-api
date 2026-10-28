@@ -4,7 +4,7 @@ using MovieLibrary.Api.Infrastructure.Tmdb;
 namespace MovieLibrary.Api.Features.Movies.SearchMovies;
 
 
-public class SearchMoviesHandler(TmdbClient tmdb)
+public class SearchMoviesHandler(ITmdbClient tmdb)
 {
     public async Task<PagedResponse<MovieItem>> HandleAsync(string query, int page, CancellationToken ct)
     {

@@ -6,8 +6,7 @@ using System.Net.Http.Headers;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+
 builder.Services.AddOpenApi();
 builder.Services.AddHealthChecks();
 builder.Services.AddExceptionHandler<UpstreamExceptionHandler>();
@@ -20,7 +19,7 @@ builder.Services.AddOptions<TmdbOptions>()
     .ValidateDataAnnotations()
     .ValidateOnStart();
 
-builder.Services.AddHttpClient<TmdbClient>((serviceProvider, client) =>
+builder.Services.AddHttpClient<ITmdbClient, TmdbClient>((serviceProvider, client) =>
 {
     var tmdb = serviceProvider.GetRequiredService<IOptions<TmdbOptions>>().Value;
 

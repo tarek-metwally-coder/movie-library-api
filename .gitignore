@@ -483,3 +483,6 @@ $RECYCLE.BIN/
 
 # Private working notes (not for the public repo)
 CONTEXT.md
+
+#editor settings
+.editorconfig
