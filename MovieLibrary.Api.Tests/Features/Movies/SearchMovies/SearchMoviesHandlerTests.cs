@@ -76,7 +76,7 @@ public class SearchMoviesHandlerTests
     }
 
     [Theory]
-    [MemberData(nameof(UpstreamExceptions))]
+    [MemberData(nameof(UpstreamExceptions), DisableDiscoveryEnumeration = true)]
     public async Task HandleAsync_ClientThrowsUpstreamException_PropagatesSameException(Exception ex)
     {
         // arrange 
