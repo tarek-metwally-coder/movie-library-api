@@ -7,7 +7,6 @@ namespace MovieLibrary.Api.Infrastructure.ErrorHandling;
 public class UpstreamExceptionHandler(
     ILogger<UpstreamExceptionHandler> logger,
     IProblemDetailsService problemDetailsService) : IExceptionHandler
-
 {
     public async ValueTask<bool> TryHandleAsync(HttpContext context, Exception exception, CancellationToken cancellationToken)
     {
@@ -27,7 +26,6 @@ public class UpstreamExceptionHandler(
                 HttpContext = context,
                 ProblemDetails = problemDetails,
                 Exception = exception
-
             });
         }
         return false;
