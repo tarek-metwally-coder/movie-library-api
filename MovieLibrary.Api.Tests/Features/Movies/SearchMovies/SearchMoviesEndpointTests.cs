@@ -90,4 +90,22 @@ public class SearchMoviesEndpointTests : IClassFixture<MovieLibraryApiFactory>
         // assert
         Assert.Equal(HttpStatusCode.BadGateway, response.StatusCode);
     }
+
+    [Theory]
+    [InlineData("/api/movies/search")]
+    [InlineData("/api/movies/search?query=Ant&page=0")]
+    [InlineData("/api/movies/search?query=Ant&page=501")]
+    [InlineData("/api/movies/search?query=&page=3")]
+    [InlineData("/api/movies/search?query=abc&page=abc")]
+    public async Task SearchMovies_InvalidParameters_Returns400(string url)
+    {
+        // arrange
+        var client = _factory.CreateClient();
+        // act
+        using var response = await client.GetAsync(url, TestContext.Current.CancellationToken);
+        // assert
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Null(_factory.Stub.ReceivedRequest);
+    }
+
 }
