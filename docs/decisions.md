@@ -34,6 +34,12 @@ Every paged endpoint returns the same paging fields, so one generic wrapper live
 All errors use RFC 9457 ProblemDetails with a `traceId`. Upstream (TMDB) failures map to **502 Bad Gateway**, not 500, so it's clear whether this API or its dependency failed. Exception details are logged server-side, never returned to clients.
 Exceptions are reserved for unexpected failures; expected outcomes (e.g. "not in watchlist") will be decided per slice (Result pattern vs exceptions).
 
+## Malformed requests: 400 ProblemDetails in every environment
+A request can be rejected at two stages. **Validation** (`AddValidation()` + DataAnnotations) handles values that bind but break a rule, e.g. `?query=` or `page=0`, and returns a 400 ValidationProblem. **Binding** fails earlier, when a value can't be produced at all: a missing non-nullable `query`, or `page=abc`. In Development, minimal APIs run with `ThrowOnBadRequest` on, so a binding failure throws `BadHttpRequestException`; with no handler for it, `UseExceptionHandler` reports it as a 500.
+A dedicated `BadHttpRequestExceptionHandler` maps `BadHttpRequestException` to a ProblemDetails response using the exception's own status code (400), so clients get the same honest 400 in every environment.
+**Alternative considered:** making the parameter `string? query` so `[Required]` catches a missing value during validation. It fixes only that one parameter; unparseable values such as `page=abc` would still fail at binding.
+Found by the search endpoint integration tests.
+
 ## Testing approach
 - Expected values in tests are literals, never recomputed with the same logic as production code. Exception: tests of code that only *delegates* (e.g. a handler that returns the mapper's output) build the expected value with the collaborator, so mapping rules are asserted once, in the mapper's own tests
 - Shared valid test data via builders plus record `with` expressions to vary one property per case
