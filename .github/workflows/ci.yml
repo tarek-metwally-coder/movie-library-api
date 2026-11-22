@@ -15,4 +15,4 @@ jobs:
           dotnet-version: 10.0.x
       - run: dotnet restore MovieLibrary.slnx
       - run: dotnet build MovieLibrary.slnx --no-restore
-      - run: dotnet test MovieLibrary.slnx --no-build
+      - run: dotnet test --solution MovieLibrary.slnx --no-build
