@@ -50,3 +50,8 @@ Found by the search endpoint integration tests.
 - Handlers must let upstream exceptions propagate unchanged so `UpstreamExceptionHandler` can map them to 502; tests check this with `Assert.ThrowsAnyAsync` + `Assert.Same`
 - Record equality is shallow: collection properties compare by reference, so paged responses assert their fields and compare result lists element-wise with `Assert.Equal`, or the whole object structurally with `Assert.Equivalent`
 - Plain xUnit assertions only. FluentAssertions was considered for deep equality but v8+ needs a commercial license; free alternatives (Shouldly, AwesomeAssertions) exist if assertion noise becomes a real problem
+
+## Continuous integration
+GitHub Actions (`.github/workflows/ci.yml`) restores, builds and runs all tests on every push to `main` and every pull request targeting it, on a fresh Ubuntu runner. The runner has no TMDB token: integration tests set a dummy `Tmdb:ApiKey` and stub TMDB's HTTP handler, so no secret is needed in CI.
+`global.json` opts `dotnet test` into Microsoft.Testing.Platform (MTP) mode. xUnit v3 runs on MTP v2, which the .NET 10 SDK's legacy VSTest mode of `dotnet test` rejects. In MTP mode the solution is passed as a named option: `dotnet test --solution MovieLibrary.slnx`.
+Actions are pinned to their major version (`@v7`), so patch and minor fixes arrive automatically; majors are upgraded when the run logs show deprecation warnings.
