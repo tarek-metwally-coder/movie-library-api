@@ -55,3 +55,10 @@ Found by the search endpoint integration tests.
 GitHub Actions (`.github/workflows/ci.yml`) restores, builds and runs all tests on every push to `main` and every pull request targeting it, on a fresh Ubuntu runner. The runner has no TMDB token: integration tests set a dummy `Tmdb:ApiKey` and stub TMDB's HTTP handler, so no secret is needed in CI.
 `global.json` opts `dotnet test` into Microsoft.Testing.Platform (MTP) mode. xUnit v3 runs on MTP v2, which the .NET 10 SDK's legacy VSTest mode of `dotnet test` rejects. In MTP mode the solution is passed as a named option: `dotnet test --solution MovieLibrary.slnx`.
 Actions are pinned to their major version (`@v7`), so patch and minor fixes arrive automatically; majors are upgraded when the run logs show deprecation warnings.
+
+## Container image: multi-stage Dockerfile
+The `Dockerfile` builds in two stages. The first uses the .NET SDK image to restore and `dotnet publish` the API in Release; the second starts from the much smaller ASP.NET runtime image and copies in only the published output. The final image carries no SDK, source code or NuGet cache, so it is smaller and has less attack surface.
+- **Restore before copying the source:** the API's `.csproj` is copied and restored first, then the rest of the code. Docker caches each step, so a code-only change reuses the restored packages instead of downloading them again.
+- **Only the API project is built:** `.dockerignore` leaves out the test project (plus `bin/`, `obj/`, `.git/`, `.vs/`, local notes and `*.user` files), so the Dockerfile targets `MovieLibrary.Api.csproj` directly and never the solution, which still references the tests. Tests run in CI before the image is built.
+- **No secrets in the image:** the TMDB token is supplied when the container starts (`-e Tmdb__ApiKey=...`), never at build time. The container listens on port 8080, the default for .NET container images, and runs in the Production environment, so Swagger UI is not exposed.
+- **CI builds the image** as its last step, so a commit with failing tests is never packaged.
