@@ -1,0 +1,17 @@
+.editorconfig
+.git
+.gitattributes
+.gitignore
+.vs
+.github
+CLAUDE.md
+CONTEXT.md
+MovieLibrary.Api.Tests/
+TestResults/
+docs/
+**/bin/
+**/obj/
+**/*.user
+.dockerignore
+Dockerfile
+README.md
