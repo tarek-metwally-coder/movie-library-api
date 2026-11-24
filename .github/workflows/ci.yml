@@ -16,3 +16,4 @@ jobs:
       - run: dotnet restore MovieLibrary.slnx
       - run: dotnet build MovieLibrary.slnx --no-restore
       - run: dotnet test --solution MovieLibrary.slnx --no-build
+      - run: docker build -t movielibrary-api .
