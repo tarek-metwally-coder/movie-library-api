@@ -1,4 +1,5 @@
 # Movie Library API
+[![CI](https://github.com/tarek-metwally-coder/movie-library-api/actions/workflows/ci.yml/badge.svg)](https://github.com/tarek-metwally-coder/movie-library-api/actions/workflows/ci.yml)
 
 An ASP.NET Core Web API that powers the [movie-library-web](https://github.com/tarek-metwally-coder/movie-library-web) frontend. It proxies [TMDB](https://www.themoviedb.org/) server-side so the API token never reaches the browser, and returns its own clean, frontend-friendly response shapes.
 
