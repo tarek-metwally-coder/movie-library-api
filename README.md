@@ -11,7 +11,8 @@ Built with **vertical-slice architecture** and minimal APIs.
 - Built-in minimal API validation (DataAnnotations)
 - RFC 9457 ProblemDetails for all error responses
 - OpenAPI + Swagger UI
-- xUnit (test project)
+- xUnit v3: unit tests plus integration tests with `WebApplicationFactory` and a stubbed TMDB
+- Docker (multi-stage image) and GitHub Actions CI
 
 ## Endpoints
 
@@ -52,7 +53,7 @@ Every error uses the same [ProblemDetails](https://www.rfc-editor.org/rfc/rfc945
 
 | Status | When |
 |---|---|
-| `400` | Invalid input: missing or whitespace-only `query`, `page` outside 1–500 |
+| `400` | Invalid input: missing, empty or whitespace-only `query`; `page` outside 1–500 or not a number |
 | `502` | TMDB failed or rejected the request. Details are logged server-side and never returned to the client |
 | `500` | Any other unhandled error |
 
@@ -79,9 +80,15 @@ MovieLibrary.Api/
 │       └── SearchMovies/      # Endpoint + handler for this slice
 ├── Infrastructure/
 │   ├── Tmdb/                  # Typed HTTP client, TMDB DTOs, options
-│   └── ErrorHandling/         # Exception → ProblemDetails mapping
+│   └── ErrorHandling/         # Exception → ProblemDetails mapping (502 upstream, 400 bad requests)
 └── Program.cs
 MovieLibrary.Api.Tests/
+├── Features/                  # Mirrors the API: mapper, handler and endpoint tests
+├── Fixtures/                  # MovieLibraryApiFactory: the real app with TMDB stubbed out
+└── TestDoubles/               # Hand-written stubs (no mocking library)
+docs/decisions.md              # Design decisions and the reasoning behind them
+Dockerfile                     # Multi-stage build: SDK to publish, ASP.NET runtime to run
+.github/workflows/ci.yml       # Build, test and build the image on every push and PR
 ```
 
 ## Design decisions
@@ -91,6 +98,10 @@ MovieLibrary.Api.Tests/
 - **Typed `HttpClient` via `IHttpClientFactory`.** Avoids socket exhaustion and stale DNS. Base address and auth header are configured once at registration.
 - **Fail fast on config.** TMDB options are validated on startup, so a missing token stops the app instead of failing on the first request.
 - **Honest status codes.** Upstream failures return `502 Bad Gateway`, not `500`, so it's clear whether this API or its dependency failed.
+- **Tested at two levels.** Unit tests cover the mapper and handler with hand-written stubs. Integration tests run the real app in memory with only TMDB's HTTP handler replaced, so routing, validation, JSON handling and error mapping are tested together. They found and fixed a bug where invalid parameters returned `500` instead of `400`.
+- **No secrets in CI or images.** Tests use a dummy token and a stubbed TMDB; the Docker image receives the token only when the container starts.
+
+The full log, with alternatives considered, is in [docs/decisions.md](docs/decisions.md).
 
 ## Getting started
 
@@ -112,12 +123,30 @@ dotnet run --launch-profile https
 
 Swagger UI opens at `https://localhost:7002/swagger`.
 
-> In Docker or production, provide the token as an environment variable instead: `Tmdb__ApiKey`.
+> Outside your machine, provide the token as an environment variable instead: `Tmdb__ApiKey`.
+
+### Run with Docker
+
+```bash
+docker build -t movielibrary-api .
+docker run --rm -p 8080:8080 -e Tmdb__ApiKey="<your-tmdb-read-access-token>" movielibrary-api
+```
+
+The API is then at `http://localhost:8080` (for example `http://localhost:8080/api/movies/search?query=matrix`). The container runs in the Production environment, so Swagger UI is not exposed.
+
+### Run the tests
+
+```bash
+dotnet test --solution MovieLibrary.slnx
+```
+
+No TMDB token is needed: the tests never call TMDB.
 
 ## Roadmap
-- [ ] Unit and integration tests for the search slice
+- [x] Unit and integration tests for the search slice
+- [x] Dockerfile and GitHub Actions CI
 - [ ] Popular movies slice
-- [ ] PostgreSQL + EF Core
+- [ ] PostgreSQL + EF Core, with Docker Compose for local development
 - [ ] Trending searches (replaces the frontend's Appwrite integration)
 - [ ] JWT authentication and user watchlists
-- [ ] Docker Compose and GitHub Actions CI
+- [ ] Cloud deployment with Terraform, continuous deployment and observability
